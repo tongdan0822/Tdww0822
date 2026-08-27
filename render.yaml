@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: emergency-nursing-record
+    runtime: node
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: DATA_DIR
+        value: /var/data
+      - key: JWT_SECRET
+        generateValue: true
+    disk:
+      name: emergency-data
+      mountPath: /var/data
+      sizeGB: 1

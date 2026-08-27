@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>急诊抢救护理记录系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">🏥</div>
+                <h1>急诊抢救护理记录系统</h1>
+                <p>多端数据同步 · 安全可靠</p>
+            </div>
+            <div class="login-form">
+                <div class="tab-group">
+                    <button class="tab active" data-tab="login" onclick="switchTab('login')">登录</button>
+                    <button class="tab" data-tab="register" onclick="switchTab('register')">注册</button>
+                </div>
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="loginUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="loginPassword" placeholder="请输入密码">
+                    </div>
+                    <button class="btn-primary btn-block" onclick="doLogin()">登 录</button>
+                </div>
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="regUsername" placeholder="至少3个字符">
+                    </div>
+                    <div class="form-group">
+                        <label>显示名称</label>
+                        <input type="text" id="regDisplayName" placeholder="可选，如：张医生">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="regPassword" placeholder="至少6个字符">
+                    </div>
+                    <div class="form-group">
+                        <label>确认密码</label>
+                        <input type="password" id="regPassword2" placeholder="再次输入密码">
+                    </div>
+                    <button class="btn-primary btn-block" onclick="doRegister()">注 册</button>
+                </div>
+            </div>
+            <div class="login-footer">
+                <p>数据加密存储 · 支持多端同步</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用页面 -->
+    <div id="appPage" style="display: none;">
+        <!-- 顶部导航 -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="app-title">🏥 急诊抢救护理记录</span>
+            </div>
+            <div class="header-right">
+                <span class="user-info" id="userInfo">用户</span>
+                <button class="btn-logout" onclick="doLogout()">退出</button>
+            </div>
+        </header>
+
+        <!-- 记录列表页 -->
+        <div id="listView" class="view">
+            <div class="toolbar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索患者姓名、诊断..." oninput="searchRecords()">
+                </div>
+                <button class="btn-primary" onclick="showAddView()">+ 新增记录</button>
+                <button class="btn-secondary" onclick="printAllRecords()">📄 打印报表</button>
+            </div>
+            <div id="recordList" class="record-list"></div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <p>暂无抢救记录</p>
+                <p class="empty-hint">点击"新增记录"开始填写</p>
+            </div>
+        </div>
+
+        <!-- 新增/编辑页 -->
+        <div id="editView" class="view" style="display: none;">
+            <div class="page-header">
+                <button class="btn-back" onclick="showListView()">← 返回列表</button>
+                <h2 id="editTitle">新增抢救记录</h2>
+                <button class="btn-primary" onclick="saveRecord()">💾 保存</button>
+            </div>
+
+            <div class="form-card">
+                <h3 class="card-title">基本信息</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>患者姓名 *</label>
+                        <input type="text" id="patientName" placeholder="请输入患者姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="gender">
+                            <option value="">请选择</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>年龄</label>
+                        <input type="number" id="age" placeholder="请输入年龄">
+                    </div>
+                    <div class="form-group">
+                        <label>入院时间 *</label>
+                        <input type="datetime-local" id="admissionTime">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>工作单位/家庭住址</label>
+                        <input type="text" id="address" placeholder="请输入工作单位或家庭住址">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>来院方式</label>
+                        <div class="radio-group" id="arrivalGroup">
+                            <label class="radio-label"><input type="radio" name="arrival" value="120救护车护送"> 120救护车</label>
+                            <label class="radio-label"><input type="radio" name="arrival" value="家属护送"> 家属护送</label>
+                            <label class="radio-label"><input type="radio" name="arrival" value="同事护送"> 同事护送</label>
+                            <label class="radio-label"><input type="radio" name="arrival" value="公安人员护送"> 公安护送</label>
+                            <label class="radio-label"><input type="radio" name="arrival" value="自行就医"> 自行就医</label>
+                            <label class="radio-label"><input type="radio" name="arrival" value="其他"> 其他</label>
+                        </div>
+                        <input type="text" id="arrivalOther" placeholder="请输入其他来院方式" style="display: none; margin-top: 10px;">
+                    </div>
+                    <div class="form-group">
+                        <label>首诊医生</label>
+                        <input type="text" id="firstDoctor" placeholder="请输入首诊医生姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>开始抢救时间</label>
+                        <input type="datetime-local" id="rescueStartTime">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>诊断</label>
+                        <textarea id="diagnosis" placeholder="请输入诊断结果" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="card-header">
+                    <h3 class="card-title">抢救护理记录</h3>
+                    <button class="btn-add" onclick="addRecordRow()">+ 添加一行</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="record-table" id="recordTable">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>意识</th>
+                                <th>心率</th>
+                                <th>呼吸</th>
+                                <th>血压</th>
+                                <th>SpO₂</th>
+                                <th>病情观察及治疗</th>
+                                <th>签名</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordTableBody"></tbody>
+                    </table>
+                </div>
+                <p class="table-hint">← 横向滑动查看更多列 →</p>
+            </div>
+
+            <div class="form-card">
+                <h3 class="card-title">转归</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>转归时间</label>
+                        <input type="datetime-local" id="outcomeTime">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>转归方式</label>
+                        <div class="radio-group" id="outcomeGroup">
+                            <label class="radio-label"><input type="radio" name="outcome" value="住院"> 住院</label>
+                            <label class="radio-label"><input type="radio" name="outcome" value="出院"> 出院</label>
+                            <label class="radio-label"><input type="radio" name="outcome" value="留观"> 留观</label>
+                            <label class="radio-label"><input type="radio" name="outcome" value="转院"> 转院</label>
+                            <label class="radio-label"><input type="radio" name="outcome" value="死亡"> 死亡</label>
+                            <label class="radio-label"><input type="radio" name="outcome" value="其他"> 其他</label>
+                        </div>
+                        <input type="text" id="outcomeOther" placeholder="请输入其他转归方式" style="display: none; margin-top: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-secondary" onclick="showListView()">取消</button>
+                <button class="btn-primary" onclick="saveRecord()">💾 保存记录</button>
+            </div>
+        </div>
+
+        <!-- 详情页 -->
+        <div id="detailView" class="view" style="display: none;">
+            <div class="page-header">
+                <button class="btn-back" onclick="showListView()">← 返回列表</button>
+                <h2>抢救记录详情</h2>
+                <div>
+                    <button class="btn-secondary" onclick="exportExcel()">📊 导出Excel</button>
+                    <button class="btn-secondary" onclick="printCurrentRecord()">📄 打印</button>
+                    <button class="btn-primary" onclick="editCurrentRecord()">✏️ 编辑</button>
+                    <button class="btn-danger" onclick="deleteCurrentRecord()">🗑️ 删除</button>
+                </div>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- 打印区域 -->
+    <div id="printArea" style="display: none;"></div>
+
+    <!-- Toast提示 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
